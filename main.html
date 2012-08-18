@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+
+
+  <script src="https://raw.github.com/coreyti/showdown/master/src/showdown.js" type="text/javascript"></script>
+
+
+  <!--  <link rel="stylesheet" href="http://yandex.st/highlightjs/7.1/styles/default.min.css" /> -->
+  <link rel="stylesheet" href="http://softwaremaniacs.org/media/soft/highlight/styles/tomorrow-night.css" />
+  <!--  <script src="http://yandex.st/highlightjs/7.1/highlight.min.js"></script> -->
+  <script src="http://softwaremaniacs.org/media/soft/highlight/highlight.pack.js" />
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <script src="http://code.jquery.com/jquery-1.8.0.min.js" type="text/javascript"></script>
+
+
+    <style type="text/css">
+.blog-body {
+padding: 10px;
+padding-left: 20px;
+}
+.comment-block {
+margin-left: 30px;
+background-color: #383838;
+border-radius: 8px;
+margin: 11px;
+padding: 5px;
+padding-top: 0px;
+border: solid #292929 1px;
+}
+body {
+background-color: #8A8A8A;
+text-shadow: #2E2E2E 2px 2px 1px;
+color: #AAA;
+}
+a {
+color: #7D7DE4;
+}
+.blog-entry {
+background-color: #414040;
+border-radius: 5px;
+padding: 12px;
+margin: 19px auto;
+margin-bottom: 49px;
+-webkit-box-shadow: #2B2B2B 0px 0px 30px;
+max-width: 700px;
+border: solid #302E2E 1px;
+}
+.blog-entry > h2 {
+text-shadow: black 1px 1px 2px; 
+}
+.edit-button {
+color: #5FAD85;
+text-decoration: underline;
+float: right;
+right: 0px;
+top: 0px;
+}
+pre code {
+text-shadow: none;
+border-radius: 3px;
+-webkit-box-shadow: inset #5C5A5A -1px -1px 1px;
+background: #303030;
+}
+    </style>
+  
+
+
+  </head>
+
+  <body>
+    <div id="blog">
+    </div>
+  <script type="text/javascript">
+
+converter = new Showdown.converter(); //{ makeHTML: function() { return "error!"}};
+
+window.onload = function() { converter =  new Showdown.converter()};
+
+// Open popup window and allow editing content directly.
+// Getters and setters are provided.
+function onEdit(getter, setter) {
+  
+  pop = open("", "editor", "width=500,height=500");
+  
+  var elTA = pop.document.createElement('textarea');
+  elTA.style.width = "400";
+  elTA.style.height = "300";
+  elTA.value = getter();
+  elTA.onkeyup = function() { setter( elTA.value )};
+
+  pop.document.documentElement.innerHTML = "<h2>Editing live</h2><div id=\"div-edit\"></div>";
+  pop.document.getElementById("div-edit").appendChild(elTA);
+
+  console.log("adding el " + elTA + " to " + pop);
+
+}
+  content = {
+    author: "Kristian LM",
+    
+    blogs : [
+       { 
+        body : "# Proof of concept for a CMS\n\
+\n\
+Click the edit button and you can edit this site locally (but refreshing will kill everything).\n\
+\n\
+I want a CMS that will make it easier to manage your \"static\" content on your company website. I want it to be able to do this:\n\
+\n\
+1. Separate edit window with live previews\n\
+1. Edit and collaborate like a [distributed revision control system](http://en.wikipedia.org/wiki/Distributed_revision_control) such as [git].\n\
+1. Edit and commit CSS like for content\n\
+1. Support translations\n\
+1. Integrate with existing frameworks\n\
+\n\
+This site is a demonstration of 1.\n\
+\n\
+Effectively, I suppose what I want is a JavaScript library that will let you edit HTML and CSS, track your changes and commit to some storage endpoint.\n\
+\n\
+Your local changes could be stored in the browser so refreshing doesn't lose everything. Style edits that you perform with in-browser tools is also accessible from JavaScript, so these could also be tracked and \"committed\" from the site itself.\n\
+\n\
+\n\
+  [git]: http://git-scm.org",
+      },
+      { body: "# Why the *preview* button?\n\
+\n\
+I have always wondered about the usefulness of the *preview* button when you're editing your blog posts. I actually have to click *preview* when I want to see my changes? Why? Why don't you just show them to me automatically - you know I've made them!\n\
+\n\
+This is one of the things this little Javascript library tries to help out with: removing the *preview* button because it is evil. When you change a piece of text, it will give you an instant preview instead.\n\
+\n\
+Have you every tried to write some [Markdown]? It's brilliant, it converts good-looking plain ASCII into HTML. However, it's a little clumsy to get used to its syntax. The normal flow of writing a `Readme.md` file, converting it to HTML and refreshing your browser is a pain. \n\
+\n\
+Thankfully, John Fraser's [Showdown] Javascript-port lets you experiment while you learn the Markdown syntax: you immediately see your changes. \n\
+  [Showdown]: http://showdown.im\n\
+  [Markdown]: http://daringfireball.net/projects/markdown/"}
+      ,
+      { body: "# Syntax Highlighting\n\
+\n\
+It's relatively simple to introduce syntax highlighting to any website site. There are several JavaScript libraries that will parse your `<code>` sections and color in the content.\n\
+\n\
+I decided to go with \n\
+[Highlight.js](http://softwaremaniacs.org/soft/highlight/en/) because it had many languages and integration seemed easy.\n\
+\n\
+Let's demonstrate with a bit of JavaScript taken from this page itself:\n\
+\n\
+```javascript\n\
+var updateFunc = function(new_value) {\n\
+  // content is updated, update the action\n\
+  // of edit button. its getter needs to be updated,\n\
+  // so this needs to run every update\n\
+  elEdit.onclick = function() {\n\
+    onEdit(\n\
+      // getter for blog-entry\n\
+      function() { return new_value; },\n\
+      // setter for blog-entry (update div when content changes)\n\
+      updateFunc\n\
+    );\n\
+  };\n\
+\n\
+  // update the actual element\n\
+  elBlogEntry.innerHTML = converter.makeHtml(new_value);\n\
+  // update hightlighting\n\
+  $(elBlogEntry).find(\"pre code\").each(function (i, e) {hljs.highlightBlock(e)});\n\
+}\n\
+```"
+      },
+      { 
+        body: "## SIMD \n\
+\n\
+On most CPUs, there is support for SIMD (Single Instruction, Multiple Data) operations. These\n\
+allow data-intensive operations to run faster as they can be executed in parallel on the processor.\n\
+\n\
+You can write this with assembly yourself, push an array on the SIMD unit, push an operation along with it and pop the result. You\n\
+could even apply multiple operations on the same data in sequence, reducing bandwidth demands. This should all run faster than\n\
+if you'd done it exclusively with normal for-loops and + in C. Or, so you'd think.\n\
+\n\
+## GCC is an optimizing beast\n\
+\n\
+The problem with the approach above is that as you introduce assembly into your program, you also immediately \n\
+impose a platform dependency. If your assembly is for x86, you can only run it on x86 and your Android phone won't\n\
+be able to enjoy your neat little C library.\n\
+",
+        comments : [ { author : "Nils" , body: "I like your blog"},
+                     { author: "I'm a big fan", body: "I like to blow wind a stuff"}],
+      }
+      ,
+     
+    ]};
+
+// if I'd a non-bitch of a langauge, I could have called my function comment->html
+function comment2html(x) {
+  return "<div class=\"comment-block\"><h2>" + x.author + "</h2> " + x.body + "</div>";
+}
+function blog2html(x) {
+  comments = x.comments || [];
+
+  // main blog div, contains comments and entry
+  var elBlog = document.createElement('div');
+  // blog content/body
+  var elBlogEntry = document.createElement('div');
+  // edit button
+  var elEdit = document.createElement('div');
+  var elComments = document.createElement('div');
+
+  var updateFunc = function(new_value) {
+    // content is updated, update the action
+    // of edit button. its getter needs to be updated,
+    // so this needs to run every update
+    elEdit.onclick = function() {
+      onEdit(
+        // getter for blog-entry
+        function() { return new_value; },
+        // setter for blog-entry (update div when content changes)
+        updateFunc
+      )};
+
+    // update the actual element
+    elBlogEntry.innerHTML = converter.makeHtml(new_value);
+    // update hightlighting
+    //$('pre code').each(function(i, e) {hljs.highlightBlock(e)});
+    $(elBlogEntry).find("pre code").each(function (i, e) {hljs.highlightBlock(e)});
+  }
+
+  elEdit.innerHTML = "<div class=\"edit-button\">Edit</div>";
+
+
+  updateFunc(x.body);
+
+
+  elComments.innerHTML = comments.map(comment2html).join("");
+
+  elBlog.classList.add("blog-entry");
+  elBlog.appendChild(elEdit);
+  elBlog.appendChild(elBlogEntry);
+  elBlog.appendChild(elComments);
+
+  return elBlog;
+}
+
+function updateAll(blogs) {
+  var elBlog = document.getElementById("blog");
+  blogs.map(blog2html).map(function(el) { elBlog.appendChild(el) });
+}
+
+updateAll(content.blogs);
+
+    </script>
+  </body>
+</html>
